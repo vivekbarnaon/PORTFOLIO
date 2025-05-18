@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
@@ -6,23 +6,13 @@ import emailjs from '@emailjs/browser';
 const Contact = () => {
   const form = useRef();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    user_name: '',
+    user_email: '',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(false);
-
-  // EmailJS configuration
-  const emailjsServiceId = 'service_portfolio';
-  const emailjsTemplateId = 'template_portfolio';
-  const emailjsPublicKey = 'Uw3QpwEpK-JNfFgVe';
-
-  // Initialize EmailJS
-  useEffect(() => {
-    emailjs.init(emailjsPublicKey);
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,29 +28,21 @@ const Contact = () => {
     setSubmitSuccess(false);
     setSubmitError(false);
 
-    // Prepare template parameters
-    const templateParams = {
-      from_name: formData.name,
-      from_email: formData.email,
-      message: formData.message,
-      to_name: 'Vivek Kumar',
-      to_email: 'vivekbarnaon@gmail.com'
-    };
-
     try {
-      // Send email using EmailJS
-      const result = await emailjs.send(
-        emailjsServiceId,
-        emailjsTemplateId,
-        templateParams
+      // Using EmailJS sendForm method which uses the form reference
+      await emailjs.sendForm(
+        'service_yjnvnxl', // Replace with your actual service ID
+        'template_yjnvnxl', // Replace with your actual template ID
+        form.current,
+        'Uw3QpwEpK-JNfFgVe' // Your public key
       );
 
-      console.log('Email sent successfully:', result.text);
+      console.log('Email sent successfully!');
 
       // Reset form
       setFormData({
-        name: '',
-        email: '',
+        user_name: '',
+        user_email: '',
         message: '',
       });
 
@@ -248,8 +230,8 @@ const Contact = () => {
                     <input
                       type="text"
                       id="name"
-                      name="name"
-                      value={formData.name}
+                      name="user_name"
+                      value={formData.user_name}
                       onChange={handleChange}
                       required
                       placeholder="Your name"
@@ -272,8 +254,8 @@ const Contact = () => {
                     <input
                       type="email"
                       id="email"
-                      name="email"
-                      value={formData.email}
+                      name="user_email"
+                      value={formData.user_email}
                       onChange={handleChange}
                       required
                       placeholder="Your email address"
@@ -305,8 +287,7 @@ const Contact = () => {
                   </div>
                 </div>
 
-                {/* Hidden fields for EmailJS */}
-                <input type="hidden" name="to_name" value="Vivek Kumar" />
+                {/* Hidden field for recipient */}
                 <input type="hidden" name="to_email" value="vivekbarnaon@gmail.com" />
 
                 <button
