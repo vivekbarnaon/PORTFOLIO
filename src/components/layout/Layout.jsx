@@ -4,11 +4,16 @@ import Footer from './Footer';
 import { FaMoon, FaSun } from 'react-icons/fa';
 
 const Layout = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
-    // Check user preference
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    // Check if user has a saved preference
+    const savedMode = localStorage.getItem('darkMode');
+
+    // If no preference is saved, default to dark mode
+    // If preference is saved, use that preference
+    const isDarkMode = savedMode === null ? true : savedMode === 'true';
+
     setDarkMode(isDarkMode);
 
     // Apply dark mode class to body
@@ -16,6 +21,11 @@ const Layout = ({ children }) => {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+    }
+
+    // Save the initial preference if not already saved
+    if (savedMode === null) {
+      localStorage.setItem('darkMode', 'true');
     }
   }, []);
 
