@@ -1,23 +1,17 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
-import emailjs from '@emailjs/browser';
 
 const Contact = () => {
   const form = useRef();
   const [formData, setFormData] = useState({
-    user_name: '',
-    user_email: '',
+    name: '',
+    email: '',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(false);
-
-  // Initialize EmailJS
-  useEffect(() => {
-    emailjs.init('Uw3QpwEpK-JNfFgVe');
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,28 +28,26 @@ const Contact = () => {
     setSubmitError(false);
 
     try {
-      // Using EmailJS send method with template parameters
-      const templateParams = {
-        from_name: formData.user_name,
-        from_email: formData.user_email,
-        to_name: 'Vivek Kumar',
-        to_email: 'vivekbarnaon@gmail.com',
-        message: formData.message,
-      };
+      // Using FormSubmit service to send the form data
+      const formElement = form.current;
+      const formData = new FormData(formElement);
 
-      await emailjs.send(
-        'service_yjnvnxl', // Your service ID
-        'template_yjnvnxl', // Your template ID
-        templateParams,
-        'Uw3QpwEpK-JNfFgVe' // Your public key
-      );
+      const response = await fetch('https://formsubmit.co/vivekbarnaon@gmail.com', {
+        method: 'POST',
+        body: formData,
+      });
 
-      console.log('Email sent successfully!');
+      if (!response.ok) {
+        throw new Error('Form submission failed');
+      }
+
+      console.log('Form submitted successfully!');
 
       // Reset form
+      formElement.reset();
       setFormData({
-        user_name: '',
-        user_email: '',
+        name: '',
+        email: '',
         message: '',
       });
 
@@ -66,7 +58,7 @@ const Contact = () => {
         setSubmitSuccess(false);
       }, 5000);
     } catch (error) {
-      console.error('Email sending failed:', error);
+      console.error('Form submission failed:', error);
       setSubmitError(true);
 
       // Reset error message after 5 seconds
@@ -229,7 +221,7 @@ const Contact = () => {
                 </motion.div>
               )}
 
-              <form ref={form} onSubmit={handleSubmit}>
+              <form ref={form} action="https://formsubmit.co/vivekbarnaon@gmail.com" method="POST" onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label htmlFor="name" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                     Name
@@ -243,8 +235,8 @@ const Contact = () => {
                     <input
                       type="text"
                       id="name"
-                      name="user_name"
-                      value={formData.user_name}
+                      name="name"
+                      value={formData.name}
                       onChange={handleChange}
                       required
                       placeholder="Your name"
@@ -267,8 +259,8 @@ const Contact = () => {
                     <input
                       type="email"
                       id="email"
-                      name="user_email"
-                      value={formData.user_email}
+                      name="email"
+                      value={formData.email}
                       onChange={handleChange}
                       required
                       placeholder="Your email address"
@@ -300,8 +292,11 @@ const Contact = () => {
                   </div>
                 </div>
 
-                {/* Hidden field for recipient */}
-                <input type="hidden" name="to_email" value="vivekbarnaon@gmail.com" />
+                {/* FormSubmit configuration fields */}
+                <input type="hidden" name="_subject" value="New message from your portfolio website!" />
+                <input type="hidden" name="_template" value="table" />
+                <input type="hidden" name="_next" value="https://vivek018.vercel.app/" />
+                <input type="hidden" name="_captcha" value="false" />
 
                 <button
                   type="submit"
