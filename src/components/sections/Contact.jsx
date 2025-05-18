@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
@@ -14,10 +14,15 @@ const Contact = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(false);
 
-  // EmailJS service IDs - you'll need to replace these with your actual IDs from EmailJS
+  // EmailJS configuration
   const emailjsServiceId = 'service_portfolio';
   const emailjsTemplateId = 'template_portfolio';
-  const emailjsPublicKey = 'your_public_key';
+  const emailjsPublicKey = 'Uw3QpwEpK-JNfFgVe';
+
+  // Initialize EmailJS
+  useEffect(() => {
+    emailjs.init(emailjsPublicKey);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,13 +38,21 @@ const Contact = () => {
     setSubmitSuccess(false);
     setSubmitError(false);
 
+    // Prepare template parameters
+    const templateParams = {
+      from_name: formData.name,
+      from_email: formData.email,
+      message: formData.message,
+      to_name: 'Vivek Kumar',
+      to_email: 'vivekbarnaon@gmail.com'
+    };
+
     try {
       // Send email using EmailJS
-      const result = await emailjs.sendForm(
+      const result = await emailjs.send(
         emailjsServiceId,
         emailjsTemplateId,
-        form.current,
-        emailjsPublicKey
+        templateParams
       );
 
       console.log('Email sent successfully:', result.text);
@@ -60,6 +73,11 @@ const Contact = () => {
     } catch (error) {
       console.error('Email sending failed:', error);
       setSubmitError(true);
+
+      // Reset error message after 5 seconds
+      setTimeout(() => {
+        setSubmitError(false);
+      }, 5000);
     } finally {
       setIsSubmitting(false);
     }
@@ -286,6 +304,10 @@ const Contact = () => {
                     ></textarea>
                   </div>
                 </div>
+
+                {/* Hidden fields for EmailJS */}
+                <input type="hidden" name="to_name" value="Vivek Kumar" />
+                <input type="hidden" name="to_email" value="vivekbarnaon@gmail.com" />
 
                 <button
                   type="submit"
