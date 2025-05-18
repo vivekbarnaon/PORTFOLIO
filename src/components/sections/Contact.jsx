@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
@@ -13,6 +13,11 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(false);
+
+  // Initialize EmailJS
+  useEffect(() => {
+    emailjs.init('Uw3QpwEpK-JNfFgVe');
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,11 +34,19 @@ const Contact = () => {
     setSubmitError(false);
 
     try {
-      // Using EmailJS sendForm method which uses the form reference
-      await emailjs.sendForm(
-        'service_yjnvnxl', // Replace with your actual service ID
-        'template_yjnvnxl', // Replace with your actual template ID
-        form.current,
+      // Using EmailJS send method with template parameters
+      const templateParams = {
+        from_name: formData.user_name,
+        from_email: formData.user_email,
+        to_name: 'Vivek Kumar',
+        to_email: 'vivekbarnaon@gmail.com',
+        message: formData.message,
+      };
+
+      await emailjs.send(
+        'service_yjnvnxl', // Your service ID
+        'template_yjnvnxl', // Your template ID
+        templateParams,
         'Uw3QpwEpK-JNfFgVe' // Your public key
       );
 
